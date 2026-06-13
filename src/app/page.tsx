@@ -13,6 +13,7 @@ export default function Home() {
   const [mode, setMode] = useState<'manual' | 'auto'>('manual');
   const [inputDigits, setInputDigits] = useState('');
   const [autoCount, setAutoCount] = useState(6);
+  const [historyRange, setHistoryRange] = useState(20);
   const [results, setResults] = useState<string[]>([]);
   const [displayLimit, setDisplayLimit] = useState(20);
   const [summary, setSummary] = useState<InvestmentSummary | null>(null);
@@ -21,8 +22,9 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchDraws() {
+      setLoading(true);
       try {
-        const res = await fetch('/api/draws');
+        const res = await fetch(`/api/draws?history=${historyRange}`);
         const data = await res.json();
         if (Array.isArray(data)) {
           setHistoricalDraws(data);
@@ -34,7 +36,7 @@ export default function Home() {
       }
     }
     fetchDraws();
-  }, []);
+  }, [historyRange]);
 
   const handleCalculate = () => {
     let digits = '';
@@ -92,7 +94,7 @@ export default function Home() {
     }
 
     report += "--------------------------------------------------\n";
-    report += "รายชื่อชุดตัวเลขย้อนหลัง 20 งวดจริงที่ระบบใช้คำนวณ:\n";
+    report += `รายชื่อชุดตัวเลขย้อนหลัง ${historicalDraws.length} งวดจริงที่ระบบใช้คำนวณ:\n`;
     report += "--------------------------------------------------\n";
     historicalDraws.forEach((draw, i) => {
       report += `งวดที่ ${i + 1}: ${draw}\n`;
@@ -130,7 +132,7 @@ export default function Home() {
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900">Kitt-Lotto Analyzer Web</h1>
           <p className={`mt-2 text-sm font-medium ${historicalDraws.length > 0 ? 'text-green-600' : 'text-orange-500'}`}>
-            {loading ? '⏳ กำลังโหลดข้อมูล...' : historicalDraws.length > 0 ? '🟢 Online: เชื่อมต่อฐานข้อมูลสำเร็จ' : '🟡 Offline: ไม่พบสถิติหวย'}
+            {loading ? '⏳ กำลังโหลดข้อมูล...' : historicalDraws.length > 0 ? `🟢 Online: เชื่อมต่อฐานข้อมูลสำเร็จ (${historicalDraws.length} งวด)` : '🟡 Offline: ไม่พบสถิติหวย'}
           </p>
         </div>
 
@@ -141,6 +143,7 @@ export default function Home() {
           </h2>
           
           <div className="space-y-4">
+            {/* Manual Mode */}
             <div className="flex items-center gap-3">
               <input 
                 type="radio" 
@@ -166,26 +169,48 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <input 
-                type="radio" 
-                id="auto" 
-                name="mode" 
-                checked={mode === 'auto'} 
-                onChange={() => setMode('auto')}
-                className="w-4 h-4 text-blue-600"
-              />
-              <label htmlFor="auto" className="text-sm font-medium text-gray-700 flex-shrink-0">ดึงเลขจากสถิติที่มาน้อยที่สุด 20 งวดล่าสุด:</label>
-              <select 
-                disabled={mode !== 'auto'}
-                value={autoCount}
-                onChange={(e) => setAutoCount(parseInt(e.target.value))}
-                className="block w-20 px-3 py-2 rounded-md border border-gray-300 bg-white focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100"
-              >
-                {[3, 4, 5, 6, 7, 8, 9, 10].map(n => (
-                  <option key={n} value={n}>{n} ตัว</option>
-                ))}
-              </select>
+            {/* Auto Mode */}
+            <div className="space-y-3 pt-2 border-t border-gray-100">
+              <div className="flex items-center gap-3">
+                <input 
+                  type="radio" 
+                  id="auto" 
+                  name="mode" 
+                  checked={mode === 'auto'} 
+                  onChange={() => setMode('auto')}
+                  className="w-4 h-4 text-blue-600"
+                />
+                <label htmlFor="auto" className="text-sm font-medium text-gray-700">ดึงเลขจากสถิติที่มาน้อยที่สุด:</label>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 ml-7">
+                <div className="space-y-1">
+                  <span className="text-[10px] text-gray-500 uppercase font-bold">จำนวนตัวเลขที่ดึง</span>
+                  <select 
+                    disabled={mode !== 'auto'}
+                    value={autoCount}
+                    onChange={(e) => setAutoCount(parseInt(e.target.value))}
+                    className="block w-full px-3 py-2 rounded-md border border-gray-300 bg-white focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100"
+                  >
+                    {[3, 4, 5, 6, 7, 8, 9, 10].map(n => (
+                      <option key={n} value={n}>{n} ตัว</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[10px] text-gray-500 uppercase font-bold">วิเคราะห์ย้อนหลัง</span>
+                  <select 
+                    disabled={mode !== 'auto'}
+                    value={historyRange}
+                    onChange={(e) => setHistoryRange(parseInt(e.target.value))}
+                    className="block w-full px-3 py-2 rounded-md border border-gray-300 bg-white focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100"
+                  >
+                    {[20, 40, 60].map(n => (
+                      <option key={n} value={n}>{n} งวด</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
 
