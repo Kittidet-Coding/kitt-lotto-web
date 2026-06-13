@@ -80,7 +80,7 @@ export default function Home() {
     const exportedResults = results.slice(0, displayLimit);
 
     let report = "==================================================\n";
-    report += "      รายงานผลการวิเคราะห์ระบบ Geng-Lottery Web\n";
+    report += "      รายงานผลการวิเคราะห์ระบบ Kitt-Lotto Web\n";
     report += "==================================================\n\n";
     
     if (summary) {
@@ -118,7 +118,7 @@ export default function Home() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'geng_lottery_report_web.txt';
+    link.download = 'kitt_lotto_report_web.txt';
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -128,7 +128,7 @@ export default function Home() {
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Geng-Lottery Analyzer Web</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Kitt-Lotto Analyzer Web</h1>
           <p className={`mt-2 text-sm font-medium ${historicalDraws.length > 0 ? 'text-green-600' : 'text-orange-500'}`}>
             {loading ? '⏳ กำลังโหลดข้อมูล...' : historicalDraws.length > 0 ? '🟢 Online: เชื่อมต่อฐานข้อมูลสำเร็จ' : '🟡 Offline: ไม่พบสถิติหวย'}
           </p>
