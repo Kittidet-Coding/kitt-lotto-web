@@ -1,0 +1,14 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/client"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Draw {
+  id            Int      @id @default(autoincrement())
+  winningNumber String
+  drawDate      DateTime @default(now())
+}
